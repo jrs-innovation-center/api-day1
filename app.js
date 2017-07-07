@@ -1,26 +1,35 @@
 const express = require('express')
 const app = express()
-const { filter, propEq, pathOr, toLower } = require('ramda')
+const { filter, propEq, pathOr, toLower, compose, take } = require('ramda')
 const medications = [
   { id: 1, name: 'Tylenol', form: 'tablet', amt: '100 mg' },
+  { id: 1, name: 'Advil', form: 'tablet', amt: '100 mg' },
+  { id: 1, name: 'Pepto', form: 'tablet', amt: '100 mg' },
+  { id: 1, name: 'Aspirin', form: 'tablet', amt: '100 mg' },
+  { id: 1, name: 'Flonase', form: 'tablet', amt: '100 mg' },
+  { id: 1, name: 'Nyquil', form: 'tablet', amt: '100 mg' },
+  { id: 1, name: 'Melatonin', form: 'tablet', amt: '100 mg' },
   { id: 1, name: 'Advil', form: 'tablet', amt: '100 mg' },
   { id: 2, name: 'Zyrtec', form: 'patch', amt: '100 mg' },
   { id: 3, name: 'Oxycontin', form: 'syrup', amt: '200 mg' }
 ]
 
 app.get('/medications', function(req, res) {
-  // req.query.name
   const filterCriteria = pathOr('N/A', ['query', 'form'], req)
-  console.log('filter:', filterCriteria)
+  const limit = pathOr(10, ['query', 'limit'], req)
+
   if (filterCriteria != 'N/A') {
-    // do some filtering with filter
     // Ex: GET http://localhost:4000/medications?name=Tylenol
+    // ex: GET http://localhost:4000/medications?form=tablet&limit=4
     const isForm = med => med.form === toLower(filterCriteria)
-    res.send(filter(isForm, medications))
+    const composeResult = compose(take(limit), filter(isForm))(medications)
+
+    res.send(composeResult)
   } else {
     // no filtering needed, send all meds back.
     // Ex: GET http://localhost:4000/medications
-    res.send(medications)
+    const results = compose(take(limit))(medications)
+    res.send(results)
   }
 })
 // send a single med back
