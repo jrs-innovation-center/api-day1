@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "path": "^0.12.7"
+    "express": "^4.15.3",
+    "path": "^0.12.7",
+    "ramda": "^0.24.1"
   }
 }
