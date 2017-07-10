@@ -1,18 +1,48 @@
 const express = require('express')
 const app = express()
-const { filter, propEq, pathOr, toLower, compose, take } = require('ramda')
+const bodyParser = require('body-parser')
+const {
+  filter,
+  prop,
+  propEq,
+  pathOr,
+  toLower,
+  compose,
+  take,
+  map,
+  sortBy,
+  append,
+  last,
+  add,
+  apply
+} = require('ramda')
+app.use(bodyParser.json())
+
 const medications = [
   { id: 1, name: 'Tylenol', form: 'tablet', amt: '100 mg' },
-  { id: 1, name: 'Advil', form: 'tablet', amt: '100 mg' },
-  { id: 1, name: 'Pepto', form: 'tablet', amt: '100 mg' },
-  { id: 1, name: 'Aspirin', form: 'tablet', amt: '100 mg' },
-  { id: 1, name: 'Flonase', form: 'tablet', amt: '100 mg' },
-  { id: 1, name: 'Nyquil', form: 'tablet', amt: '100 mg' },
-  { id: 1, name: 'Melatonin', form: 'tablet', amt: '100 mg' },
-  { id: 1, name: 'Advil', form: 'tablet', amt: '100 mg' },
-  { id: 2, name: 'Zyrtec', form: 'patch', amt: '100 mg' },
-  { id: 3, name: 'Oxycontin', form: 'syrup', amt: '200 mg' }
+  { id: 2, name: 'Advil', form: 'tablet', amt: '100 mg' },
+  { id: 3, name: 'Pepto', form: 'tablet', amt: '100 mg' },
+  { id: 4, name: 'Aspirin', form: 'tablet', amt: '100 mg' },
+  { id: 5, name: 'Flonase', form: 'tablet', amt: '100 mg' },
+  { id: 6, name: 'Nyquil', form: 'tablet', amt: '100 mg' },
+  { id: 10, name: 'Melatonin', form: 'tablet', amt: '100 mg' },
+  { id: 8, name: 'Advil', form: 'tablet', amt: '100 mg' },
+  { id: 9, name: 'Zyrtec', form: 'patch', amt: '100 mg' },
+  { id: 7, name: 'Oxycontin', form: 'syrup', amt: '200 mg' }
 ]
+
+app.post('/medications', (req, res) => {
+  let med = pathOr(null, ['body'], req)
+
+  const newId = compose(add(1), apply(Math.max), map(med => med.id))(
+    medications
+  )
+
+  med = merge(med, { id: newId })
+  append(med, medications)
+
+  res.send(med)
+})
 
 app.get('/medications', function(req, res) {
   const filterCriteria = pathOr('N/A', ['query', 'form'], req)
